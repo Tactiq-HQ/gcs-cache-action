@@ -3,7 +3,6 @@ import * as github from '@actions/github';
 import { Storage, File, Bucket } from '@google-cloud/storage';
 import { withFile as withTemporaryFile } from 'tmp-promise';
 
-import { ObjectMetadata } from './gcs-utils';
 import { getInputs } from './inputs';
 import { CacheHitKindState, saveState } from './state';
 import { extractTar } from './tar-utils';
@@ -39,8 +38,12 @@ async function getBestMatch(
     .then(([files]) =>
       files.sort(
         (a, b) =>
-          new Date((b.metadata as ObjectMetadata).updated).getTime() -
-          new Date((a.metadata as ObjectMetadata).updated).getTime(),
+          new Date(
+            (b.metadata as any).updated || b.metadata?.timeCreated || '',
+          ).getTime() -
+          new Date(
+            (a.metadata as any).updated || a.metadata?.timeCreated || '',
+          ).getTime(),
       ),
     )
     .catch((err) => {
@@ -54,7 +57,8 @@ async function getBestMatch(
         bucketFiles.map((f) => ({
           name: f.name,
           metadata: {
-            updated: (f.metadata as ObjectMetadata).updated,
+            updated:
+              (f.metadata as any).updated || f.metadata?.timeCreated || '',
           },
         })),
       )}.`,
@@ -109,7 +113,7 @@ async function main() {
 
   const bestMatchMetadata = await bestMatch
     .getMetadata()
-    .then(([metadata]) => metadata as ObjectMetadata)
+    .then(([metadata]) => metadata as any)
     .catch((err) => {
       core.error('Failed to read object metadatas');
       throw err;

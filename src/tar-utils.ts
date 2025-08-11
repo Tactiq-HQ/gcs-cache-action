@@ -1,5 +1,3 @@
-/* eslint-disable sonarjs/no-duplicate-string */
-
 import * as exec from '@actions/exec';
 import * as semver from 'semver';
 
@@ -52,8 +50,8 @@ export async function createTar(
     compressionMethod === CompressionMethod.GZIP
       ? ['-z']
       : compressionMethod === CompressionMethod.ZSTD_WITHOUT_LONG
-      ? ['--use-compress-program', 'zstd -T0']
-      : ['--use-compress-program', 'zstd -T0 --long=30'];
+        ? ['--use-compress-program', 'zstd -T0']
+        : ['--use-compress-program', 'zstd -T0 --long=30'];
 
   await exec.exec('tar', [
     '-c',
@@ -83,8 +81,8 @@ export async function extractTar(
     compressionMethod === CompressionMethod.GZIP
       ? ['-z']
       : compressionMethod === CompressionMethod.ZSTD_WITHOUT_LONG
-      ? ['--use-compress-program', 'zstd -d']
-      : ['--use-compress-program', 'zstd -d --long=30'];
+        ? ['--use-compress-program', 'zstd -d']
+        : ['--use-compress-program', 'zstd -d --long=30'];
 
   await exec.exec('tar', [
     '-x',
